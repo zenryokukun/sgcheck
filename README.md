@@ -1,6 +1,8 @@
 # Comparing the result of SurferGopher bot and backtest 
 
-GMO Coin API
+## requirements
+- GMO Coin account
+- running SurferGopher bot. https://github.com/zenryokukun/surfergopher 
 
 ## required files
 - ../surfergopher/data/balance.json
