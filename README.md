@@ -15,3 +15,11 @@ The backtest logic is in sgcheck/backtest package.
 - ./acutal.json
 - ./bal.json
 - ./candles.json
+
+## Usage
+Don't forget to get the latest balance.json from the server beforehand.    
+- Run below to get monthly result in line graph.   
+ ```go run .```  
+
+- Run below to get monthly result in bar graph.  
+```python ./bar.py```
