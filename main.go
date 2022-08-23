@@ -25,6 +25,11 @@ type (
 	}
 )
 
+func (xy *XY) slice(start, end int) {
+	xy.X = xy.X[start:end]
+	xy.Y = xy.Y[start:end]
+}
+
 func dateLayout(itv string) string {
 	var layout string
 	if itv == "4hour" || itv == "1day" || itv == "1week" || itv == "1month" {
@@ -157,6 +162,11 @@ func main() {
 	//実際の残高データをXYに展開する
 	balance := &XY{}
 	load(ACTUAL_BALANCE_F, balance)
+
+	//　修正検証ように追加 202208
+	// 下落がはじまった6/15以降のデータに絞る。
+	// balance.slice(241, len(balance.X))
+	// 追加 END
 
 	//ロウソク足d－多を取得
 	data := newCandles(req, "BTC_JPY", "4hour", balance, OFFSET)

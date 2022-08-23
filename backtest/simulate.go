@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/zenryokukun/surfergopher/fibo"
 	"github.com/zenryokukun/surfergopher/gmo"
@@ -150,9 +151,14 @@ func (s *Summary) close(price float64, otime int) float64 {
 }
 
 func Simulate() {
-	POS_FILE := "./pos.json"      //position inf
-	BAL_FILE := "./bal.json"      //total profit
+	POS_FILE := "./pos.json" //position inf
+	BAL_FILE := "./bal.json" //total profit
+
 	DATA_FILE := "./candles.json" //candleData to test
+
+	// 2018以降のデータテストする場合はこっちのコメントはずす。
+	// DATA_FILE := "../surfergopher\\bktest\\testdata4hr.json"
+
 	//read test data
 	tdata := &gmo.CandlesData{}
 	if b, err := os.ReadFile(DATA_FILE); err == nil {
@@ -173,6 +179,7 @@ func Simulate() {
 		ed := offset + i + mcount
 		st := ed - mcount
 		inf := minmax.NewInf(tdata.High[st:ed], tdata.Low[st:ed]).AddWrap(v)
+
 		var dec string
 
 		dec = "" //open判定変数
@@ -232,32 +239,78 @@ func Simulate() {
 		//open判定が設定されていない場合、
 		//fibolevelが5以上もしくは１以下の場合設定
 		if dec == "" {
+			if pos.has() {
+				ot := time.Unix(int64(otime), 0)
+				pt := time.Unix(int64(pos.time), 0)
+				hours := ot.Sub(pt).Hours()
+				if hours >= 24 {
+					if pos.isProfFilled(v, 0.01) {
+						pos.close(v, otime)
+					}
+					if pos.isLossFilled(v, -0.01) {
+						pos.close(v, otime)
+					}
+				}
+			}
 			lvl := fibo.Level(inf.Scaled)
-
-			if lvl >= 5 {
-				//fibo 76.4%以上で順張り
+			if lvl == 0 {
 				if inf.Which == "B" {
 					dec = "BUY"
 				} else if inf.Which == "T" {
 					dec = "SELL"
 				}
 			}
-			if lvl <= 1 {
+			if lvl == 2 {
 				if inf.Which == "B" {
-					dec = "BUY"
-				} else if inf.Which == "T" {
 					dec = "SELL"
+				} else if inf.Which == "T" {
+					dec = "BUY"
 				}
 			}
 
-			//added
+			if lvl == 3 {
+				if inf.Which == "B" {
+					dec = "SELL"
+				} else if inf.Which == "T" {
+					dec = "BUY"
+				}
+			}
+
 			if lvl == 4 {
 				if inf.Which == "B" {
-					dec = "BUY"
-				} else if inf.Which == "T" {
 					dec = "SELL"
+				} else if inf.Which == "T" {
+					dec = "BUY"
 				}
 			}
+			// 202208 修正のためコメントアウト
+			// lvl := fibo.Level(inf.Scaled)
+			// if lvl >= 5 {
+			// 	//fibo 76.4%以上で順張り
+			// 	if inf.Which == "B" {
+			// 		dec = "BUY"
+			// 	} else if inf.Which == "T" {
+			// 		dec = "SELL"
+			// 	}
+			// }
+			// if lvl <= 1 {
+			// 	if inf.Which == "B" {
+			// 		dec = "BUY"
+			// 	} else if inf.Which == "T" {
+			// 		dec = "SELL"
+			// 	}
+			// }
+
+			//added
+			// if lvl == 4 {
+			// 	if inf.Which == "B" {
+			// 		dec = "BUY"
+			// 	} else if inf.Which == "T" {
+			// 		dec = "SELL"
+			// 	}
+			// }
+			// END　202208 修正のためコメントアウト
+
 		}
 
 		//open判定かつポジション無しなれopen。
