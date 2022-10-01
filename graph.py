@@ -47,6 +47,14 @@ def graph_with_price():
     bk["strX"] = [datetime.datetime.fromtimestamp(v) for v in bk["X"]]
     cd["strX"] = [datetime.datetime.fromtimestamp(v) for v in cd["OpenTime"]]
 
+    # v2.0.0の稼働から利益の計算を再スタートさせたいので、最初の利益を全期間から差し引く
+    # start_prof: int = ac["Y"][0]
+    # ac["Y"] = [v - start_prof for v in ac["Y"]]
+
+    # v2.0.0の稼働から利益の計算を再スタートさせたいので、最初の利益をバックテストの値に足していく
+    start_prof: int = ac["Y"][0]
+    bk["Y"] = [v + start_prof for v in bk["Y"]]
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
@@ -63,8 +71,8 @@ def graph_with_price():
     # 体裁整える ####
     plt.title("Comparing Backtest and Actual Result")
     plt.xlabel("TIME")
-    ax.legend(loc=1)
-    ax2.legend(loc=2)
+    ax.legend(loc=2)
+    ax2.legend(loc=3)
     plt.gcf().autofmt_xdate()  # X軸ラベルの日付を縦向きに
     plt.tight_layout()  # ラベルが見切れるの防止
     plt.grid(True)

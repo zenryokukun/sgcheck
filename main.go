@@ -165,7 +165,7 @@ func main() {
 
 	//　修正検証ように追加 202208
 	// 下落がはじまった6/15以降のデータに絞る。
-	// balance.slice(241, len(balance.X))
+	balance.slice(700, len(balance.X))
 	// 追加 END
 
 	//ロウソク足d－多を取得
