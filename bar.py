@@ -60,7 +60,8 @@ def show_result(su):
     ax2.set_ylabel("TOTAL PROFIT(JPY)")
     ax2.plot(su["month"], su["tprof"], color="lime", label="total profit")
     # 中心線を引く
-    ax.hlines(0, max(su["month"]), min(su["month"]))
+    print(su["month"])
+    ax.hlines(0, su["month"][0], su["month"][-1])
     # レジェンド
     ax.legend(loc=2)
     ax2.legend(loc=1)
@@ -72,7 +73,7 @@ def show_result(su):
 
 
 def get_balance():
-    with open(BALANCE_FILE) as f:
+    with open(BALANCE_FILE, mode='r') as f:
         data = json.load(f)
         return data
 

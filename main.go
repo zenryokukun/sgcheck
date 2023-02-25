@@ -72,7 +72,7 @@ func newCandles(r *gmo.ReqHandler, sym, itv string, bal *XY, offset int) *gmo.Ca
 
 	//年跨ぎの場合はedFmtでも実行
 	if stFmt < edFmt {
-		res := gmo.NewCandles(r, sym, itv, stFmt) //翌年データ
+		res := gmo.NewCandles(r, sym, itv, edFmt) //翌年データ
 		if res == nil || res.Status != 0 {
 			return nil
 		}

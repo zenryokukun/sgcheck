@@ -9,6 +9,7 @@ The backtest logic is in sgcheck/backtest package.
 
 ## required files
 - ../surfergopher/data/balance.json
+- ../surfergopher/data/trade.json  NEW! 実際の取引とバックテストの取引箇所の違いを把握するため
 - ../surfergopher/conf.json
 
 ## Files this module creates

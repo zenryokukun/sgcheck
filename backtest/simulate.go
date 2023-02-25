@@ -176,7 +176,13 @@ func Simulate() {
 	offset := 0
 	for i, v := range tdata.Close[offset+mcount+1:] {
 		otime := tdata.OpenTime[offset+mcount+i+1]
+		otimeDate := time.Unix(int64(otime), 0)
+
+		fmt.Printf("starting new frame:%v --------------------------------------------------------------\n", otimeDate)
+
 		ed := offset + i + mcount
+		v = tdata.Close[ed+1]
+
 		st := ed - mcount
 		inf := minmax.NewInf(tdata.High[st:ed], tdata.Low[st:ed]).AddWrap(v)
 
@@ -185,11 +191,12 @@ func Simulate() {
 		dec = "" //open判定変数
 
 		//最大値更新中
-		if v >= inf.Maxv {
+		if v > inf.Maxv {
 			if !pos.has() {
 				//ポジションないときはBUY
 				//pos.open(v, tsize, otime, "BUY")
 				dec = "BUY"
+				fmt.Printf("[breakthrough] open! dec:%v\n", dec)
 			} else if pos.side == "SELL" {
 				//売りポジ持っているときは決済して再購入
 				pl := pos.close(v, otime)
@@ -197,17 +204,20 @@ func Simulate() {
 				//fmt.Printf("trenChange:%.f\n", pl)
 				//pos.open(v, tsize, otime, "BUY")
 				dec = "BUY"
+				fmt.Printf("[breakthrough] close and open! dec:%v prof:%v\n", dec, pl)
 			}
-		} else if v <= inf.Minv {
+		} else if v < inf.Minv {
 			if !pos.has() {
 				//pos.open(v, tsize, otime, "SELL")
 				dec = "SELL"
+				fmt.Printf("[breakthrough] open! dec:%v\n", dec)
 			} else if pos.side == "BUY" {
 				pl := pos.close(v, otime)
 				_ = pl
 				//fmt.Printf("trendChange:%.f\n", pl)
 				//pos.open(v, tsize, otime, "SELL")
 				dec = "SELL"
+				fmt.Printf("[breakthrough] close and open! dec:%v prof:%v\n", dec, pl)
 			}
 		}
 
@@ -226,6 +236,7 @@ func Simulate() {
 		if pos.isLossFilled(v, tLossR) {
 			pl := pos.close(v, otime)
 			_ = pl
+			fmt.Printf("[LossFilled 0.05] prof:%v\n", pl)
 			//fmt.Printf("losscut:%.f\n", pl)
 		}
 
@@ -233,11 +244,13 @@ func Simulate() {
 		if pos.isProfFilled(v, tProfR) {
 			pl := pos.close(v, otime)
 			_ = pl
+			fmt.Printf("[ProfFilled 0.05] prof:%v\n", pl)
 			//fmt.Printf("prof:%.f\n", pl)
 		}
 
 		//open判定が設定されていない場合、
 		//fibolevelが5以上もしくは１以下の場合設定
+		var lvl int
 		if dec == "" {
 			if pos.has() {
 				ot := time.Unix(int64(otime), 0)
@@ -245,20 +258,23 @@ func Simulate() {
 				hours := ot.Sub(pt).Hours()
 				if hours >= 24 {
 					if pos.isProfFilled(v, 0.01) {
-						pos.close(v, otime)
+						pl := pos.close(v, otime)
+						fmt.Printf("[ProfFilled 0.01] prof:%v\n", pl)
 					}
 					if pos.isLossFilled(v, -0.01) {
-						pos.close(v, otime)
+						pl := pos.close(v, otime)
+						fmt.Printf("[LossFilled 0.01] prof:%v\n", pl)
 					}
 				}
 			}
-			lvl := fibo.Level(inf.Scaled)
+			lvl = fibo.Level(inf.Scaled)
 			if lvl == 0 {
 				if inf.Which == "B" {
 					dec = "BUY"
 				} else if inf.Which == "T" {
 					dec = "SELL"
 				}
+				// fmt.Printf("fibLvl:0. recent:%v scaled:%v decision:%v\n", inf.Which, inf.Scaled, dec)
 			}
 			if lvl == 2 {
 				if inf.Which == "B" {
@@ -266,6 +282,7 @@ func Simulate() {
 				} else if inf.Which == "T" {
 					dec = "BUY"
 				}
+				// fmt.Printf("fibLvl:2. recent:%v scaled:%v decision:%v\n", inf.Which, inf.Scaled, dec)
 			}
 
 			if lvl == 3 {
@@ -274,6 +291,7 @@ func Simulate() {
 				} else if inf.Which == "T" {
 					dec = "BUY"
 				}
+				// fmt.Printf("fibLvl:3. recent:%v scaled:%v decision:%v\n", inf.Which, inf.Scaled, dec)
 			}
 
 			if lvl == 4 {
@@ -282,6 +300,7 @@ func Simulate() {
 				} else if inf.Which == "T" {
 					dec = "BUY"
 				}
+				// fmt.Printf("fibLvl:4. recent:%v scaled:%v decision:%v\n", inf.Which, inf.Scaled, dec)
 			}
 			// 202208 修正のためコメントアウト
 			// lvl := fibo.Level(inf.Scaled)
@@ -315,12 +334,15 @@ func Simulate() {
 
 		//open判定かつポジション無しなれopen。
 		if dec != "" && !pos.has() {
+			fmt.Printf("open! fibo:%v dec:%v\n", lvl, dec)
 			pos.open(v, tsize, otime, dec)
 		}
 
 		//balance更新
 		bal.add(otime, pos.pl)
 	}
+	// ここで出力している利益はグラフの利益とは異なるので注意。
+	// v2.0.0を202208から稼働させているおり、それまでの利益をグラフ出力（grahp.py）の際に加算しているため。
 	fmt.Printf("prof:%.f trades:%v\n", pos.pl, pos.cnt)
 	pos.chart.write(POS_FILE)
 	bal.write(BAL_FILE)
