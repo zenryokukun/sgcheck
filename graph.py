@@ -155,7 +155,8 @@ def graph_with_price():
     plt.gcf().autofmt_xdate()  # X軸ラベルの日付を縦向きに
     plt.tight_layout()  # ラベルが見切れるの防止
     plt.grid(True)
-    plt.show()
+    # plt.show()
+    plt.savefig("./result.png")
 
 
 if __name__ == "__main__":
