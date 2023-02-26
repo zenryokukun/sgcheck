@@ -1,2 +1,8 @@
 *.png
 *.json
+
+# server only. for compiling.
+comp.sh
+
+# executable. server only
+sgcheck
