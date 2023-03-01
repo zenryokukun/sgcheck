@@ -38,15 +38,23 @@ def graph():
     plt.show()
 
 
-def align_start(rpos, start):
+def align_start(obj, start):
     i = 0
-    for i, j in enumerate(rpos["X"]):
+    for i, j in enumerate(obj["X"]):
         if j >= start:
             break
-    rpos["X"] = rpos["X"][i:]
-    rpos["Y"] = rpos["Y"][i:]
-    rpos["Side"] = rpos["Side"][i:]
-    rpos["Action"] = rpos["Action"][i:]
+    # rpos["X"] = rpos["X"][i:]
+    # rpos["Y"] = rpos["Y"][i:]
+    # rpos["Side"] = rpos["Side"][i:]
+    # rpos["Action"] = rpos["Action"][i:]
+    for k, v in obj.items():
+        obj[k] = v[i:]
+
+
+def slice_data(obj, length):
+    for k, v in obj.items():
+        obj[k] = v[-length:]
+        print(len(obj[k]))
 
 # backtest、実際の残高、価格の３つを表示
 
@@ -58,10 +66,22 @@ def graph_with_price():
     pos = load(POS_F)
     rpos = load(RPOS_F)
 
-    rpos["X"] = [x - 60*60*4 for x in rpos["X"]]
+    # v2.0.0の稼働から利益の計算を再スタートさせたいので、最初の利益をバックテストの値に足していく
+    start_prof: int = ac["Y"][0]
+    bk["Y"] = [v + start_prof for v in bk["Y"]]
 
+    # グラフがキツキツになるので長さを切る。
+    slice_data(pos, 80)
+
+    # fieldを揃える
+    rpos["X"] = [x - 60*60*4 for x in rpos["X"]]
+    cd["X"] = cd["OpenTime"]
     # リアル取引データの長さをバックテストの期間に揃える。
     align_start(rpos, pos["X"][0])
+    align_start(ac, pos["X"][0])
+    align_start(bk, pos["X"][0])
+    align_start(cd, pos["X"][0])
+
     print(rpos["Y"][0])
     for i, v in enumerate(cd["OpenTime"]):
         if v == rpos["X"][0]:
@@ -115,10 +135,6 @@ def graph_with_price():
         else:
             rclose_x.append(_x)
             rclose_y.append(_y)
-
-    # v2.0.0の稼働から利益の計算を再スタートさせたいので、最初の利益をバックテストの値に足していく
-    start_prof: int = ac["Y"][0]
-    bk["Y"] = [v + start_prof for v in bk["Y"]]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

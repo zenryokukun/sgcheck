@@ -69,7 +69,8 @@ def show_result(su):
     plt.xticks(rotation=30)
     # 見切れ防止
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    plt.savefig("monthly.png")
 
 
 def get_balance():

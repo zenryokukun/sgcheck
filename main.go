@@ -180,11 +180,31 @@ func main() {
 	//bal.json,pos.jsonが生成される
 	backtest.Simulate()
 
-	//python 実行
+	//　pythonで取引履歴計算
 	cmd := exec.Command(genPyCommand(), "./graph.py")
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(string(b))
+
+	// pythonで月次損益計算
+	cmd = exec.Command(genPyCommand(), "./bar.py")
+	b, err = cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(b))
+
+	// tweet
+	// 実行時の1か月前を取得
+	month := int(time.Now().AddDate(0, -1, 0).Month())
+	// ツイートテキスト
+	msg := "💲SurferGopherの" + fmt.Sprint(month) + "月末報告" + "💲" + "\n"
+	msg += "🗾左🗾:バックテストとの乖離チェック" + "\n"
+	msg += "🌛右🌛:月末時点の損益" + "\n"
+	msg += "#BTC #Bitcoin" + "\n"
+	t := NewTwitter()
+	t.tweetImage(msg, "./result.png", "./monthly.png")
+
 }
