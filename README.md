@@ -11,6 +11,7 @@ The backtest logic is in sgcheck/backtest package.
 - ../surfergopher/data/balance.json
 - ../surfergopher/data/trade.json  NEW! 実際の取引とバックテストの取引箇所の違いを把握するため
 - ../surfergopher/conf.json
+- ../surfergopher/twitter_conf.json NEW! ツイート用
 
 ## Files this module creates
 - ./acutal.json
@@ -18,9 +19,16 @@ The backtest logic is in sgcheck/backtest package.
 - ./candles.json
 
 ## Usage
-Don't forget to get the latest balance.json from the server beforehand.    
-- Run below to get monthly result in line graph.   
- ```go run .```  
 
-- Run below to get monthly result in bar graph.  
-```python ./bar.py```
+実行すると、バックとテストと実取引の比較グラフ、月次集計のグラフを作成し、ツイートします。
+一部パスが相対パスのままなので、実行ファイルをプロジェクトフォルダの直下に配置し、そこにcdした上で
+実行してください。
+
+月末に実行する想定。
+
+## 課題
+
+もともとはロジック検証用として作られていましたが、ツイート機能を追加して月次報告用にしました。
+元の用途として使う場合は、ツイート機能を落として別プロジェクトとして作成したほうが良いでしょう。
+
+

@@ -6,3 +6,6 @@ comp.sh
 
 # executable. server only
 sgcheck
+
+# executable on windos
+sgcheck.exe

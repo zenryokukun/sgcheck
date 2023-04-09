@@ -204,7 +204,7 @@ func main() {
 	msg += "🗾左🗾:バックテストとの乖離チェック" + "\n"
 	msg += "🌛右🌛:月末時点の損益" + "\n"
 	msg += "#BTC #Bitcoin" + "\n"
-	t := NewTwitter()
-	t.tweetImage(msg, "./result.png", "./monthly.png")
-
+	// t := NewTwitter()
+	// t.tweetImage(msg, "./result.png", "./monthly.png")
+	tweet(msg, "./result.png", "./monthly.png")
 }
