@@ -65,8 +65,11 @@ def show_result(su):
     # レジェンド
     ax.legend(loc=2)
     ax2.legend(loc=1)
-    # xラベルを傾ける（重なり防止）
-    plt.xticks(rotation=30)
+
+    # xラベルを傾ける（重なり防止）。効かないのでplt.gcfに変更
+    # plt.xticks(rotation=30)
+    plt.gcf().autofmt_xdate()  # X軸ラベルの日付を縦向きに
+
     # 見切れ防止
     plt.tight_layout()
     # plt.show()
@@ -113,7 +116,7 @@ def summary_monthly(su):
         su["lossprof"].append(diff)
 
 
-def summary_all(show_current=False):
+def summary_all(show_current=True):
     """
     総利益ファイル:balance.jsonから月単位の総利益を集計する
     その月の最期のレコードを最終利益とする
